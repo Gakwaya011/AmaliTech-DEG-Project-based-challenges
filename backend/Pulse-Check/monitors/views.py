@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from .models import Monitor
 from .serializers import MonitorSerializer
-
+from .tasks import check_device_timeout  
 
 @api_view(['POST'])
 def create_monitor(request):
@@ -14,9 +14,10 @@ def create_monitor(request):
     """
     serializer = MonitorSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        monitor = serializer.save()
         
-        # TODO: Dispatch Celery task to handle the countdown timer
+        # Dispatch Celery task to check status after the exact timeout period
+        check_device_timeout.apply_async(args=[monitor.device_id], countdown=monitor.timeout)
         
         return Response(
             {"message": "Monitor created successfully.", "data": serializer.data}, 
@@ -38,6 +39,7 @@ def heartbeat(request, device_id):
     monitor.status = 'up' 
     monitor.save()
     
-    # TODO: Revoke existing Celery timeout task and spawn a new one
+    # Spawn a new timeout check. 
+    check_device_timeout.apply_async(args=[monitor.device_id], countdown=monitor.timeout)
 
     return Response({"message": f"Heartbeat received for {device_id}"}, status=status.HTTP_200_OK)
