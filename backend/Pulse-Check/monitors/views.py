@@ -43,3 +43,16 @@ def heartbeat(request, device_id):
     check_device_timeout.apply_async(args=[monitor.device_id], countdown=monitor.timeout)
 
     return Response({"message": f"Heartbeat received for {device_id}"}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def pause_monitor(request, device_id):
+    """
+    Pauses the monitor to prevent false alarms during maintenance.
+    """
+    monitor = get_object_or_404(Monitor, device_id=device_id)
+    
+    # Change state to paused so the Celery task ignores it
+    monitor.status = 'paused'
+    monitor.save()
+    
+    return Response({"message": f"Monitoring paused for {device_id}"}, status=status.HTTP_200_OK)

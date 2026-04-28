@@ -4,4 +4,5 @@ from . import views
 urlpatterns = [
     path('monitors', views.create_monitor, name='create-monitor'),
     path('monitors/<str:device_id>/heartbeat', views.heartbeat, name='heartbeat'),
+    path('monitors/<str:device_id>/pause', views.pause_monitor, name='pause-monitor'),
 ]
