@@ -37,8 +37,8 @@ sudo apt install redis-server && sudo systemctl start redis-server
 1. Clone the repository and enter the directory:
 
 ```bash
-git clone <your-repo-link>
-cd Pulse-Check
+git clone https://github.com/Gakwaya011/AmaliTech-DEG-Project-based-challenges.git
+cd AmaliTech-DEG-Project-based-challenges
 ```
 
 2. Create and activate a virtual environment:
